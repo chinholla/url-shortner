@@ -18,23 +18,37 @@
     },
     "scripts": {
         "build": "tsc",
-        "test": "jest"
+        "test": "jest",
+        "coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage"
     },
     "jest": {
-        "testMatch": [
-            "**/__tests__/**/*.[jt]s?(x)",
-            "**/?(*.)+(spec|test).[jt]s?(x)",
-            "**/__tests__/**/*.mjs?(x)",
-            "**/?(*.)+(spec|test).mjs?(x)"
+        "preset": "ts-jest/presets/default-esm",
+        "testEnvironment": "node",
+        "extensionsToTreatAsEsm": [
+            ".ts", ".mts"
         ],
         "moduleFileExtensions": [
+            "ts",
+            "js",
+            "mts",
             "mjs",
-            "js"
+            "json"
         ],
-        "preset": "ts-jest",
-        "collectCoverage": true,
-        "collectCoverageFrom": ["src/**/*.ts"],
-         "coverageThreshold": {
+        "moduleNameMapper": {
+            "^(\\.{1,2}/.*)\\.js$": "$1"
+        },
+        "transform": {
+            "^.+\\.(ts|tsx)$": [
+                "ts-jest",
+                {
+                    "useESM": true
+                }
+            ]
+        },
+        "testMatch": [
+            "**/*.test.ts"
+        ],
+        "coverageThreshold": {
             "global": {
                 "branches": 95,
                 "functions": 95,
