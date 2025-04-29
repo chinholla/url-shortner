@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: url-shortner
+Transform:
+- AWS::Serverless-2016-10-31
+Globals:
+  Function:
+    Runtime: nodejs22.x
+    Timeout: 30
+    Environment:
+      Variables:
+        TABLE_NAME: url-shortner
+Resources:
+  UrlTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: url-shortner
+      AttributeDefinitions:
+      - AttributeName: id
+        AttributeType: S
+      KeySchema:
+      - AttributeName: id
+        KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+  ShortenUrlFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dist/handlers/short-url.handler
+      CodeUri: ShortenUrlFunction
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            Ref: UrlTable
+      Events:
+        ShortenApi:
+          Type: Api
+          Properties:
+            Path: /shorten
+            Method: post
+        RedirectApi:
+          Type: Api
+          Properties:
+            Path: /{shortId}
+            Method: get
+    Metadata:
+      SamResourceId: ShortenUrlFunction
+Outputs:
+  ApiUrl:
+    Description: API Gateway endpoint URL
+    Value:
+      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/
