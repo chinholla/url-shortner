@@ -5,7 +5,7 @@ codeuri = "D:\\Projects\\Node projects\\URL Shortner\\url-shortner"
 runtime = "nodejs22.x"
 architecture = "x86_64"
 handler = "dist/handlers/short-url.handler"
-manifest_hash = "1f6e29ab654f0f928932bc53c1529f32"
+manifest_hash = "7d490d11ba7db0e090f33515b9b54886"
 packagetype = "Zip"
 functions = ["ShortenUrlFunction"]
 

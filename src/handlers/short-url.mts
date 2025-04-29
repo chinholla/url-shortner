@@ -28,7 +28,7 @@ export const handler = async (
         }));
         return {
             statusCode: 201,
-            body: JSON.stringify({ shortUrl: id })
+            body: JSON.stringify({ shortUrl: `https://${event.headers.Host}/Prod/${id}` })
         };
     } catch (error) {
         return {

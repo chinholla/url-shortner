@@ -25,11 +25,10 @@ export const handler = async (event) => {
             }));
             return {
                 statusCode: 201,
-                body: JSON.stringify({ shortUrl: id })
+                body: JSON.stringify({ shortUrl: `https://${event.headers.Host}/Prod/${id}` })
             };
         }
         catch (error) {
-            console.error('Error shortening URL:', error);
             return {
                 statusCode: 500,
                 body: JSON.stringify({ error: 'Failed to shorten url' })
@@ -38,11 +37,23 @@ export const handler = async (event) => {
     }
     if (httpMethod === "GET") {
         const shortId = event.pathParameters?.shortId;
+        if (!shortId) {
+            return {
+                statusCode: 403,
+                body: JSON.stringify({ error: "Missing Authentication Token" }),
+            };
+        }
         try {
             const result = await docClient.send(new GetCommand({
                 TableName: tableName,
                 Key: { id: shortId },
             }));
+            if (!result.Item) {
+                return {
+                    statusCode: 404,
+                    body: JSON.stringify({ error: "URL not found" }),
+                };
+            }
             return {
                 statusCode: 301,
                 headers: { Location: result?.Item?.longUrl },
@@ -50,15 +61,14 @@ export const handler = async (event) => {
             };
         }
         catch (error) {
-            console.error('Error fetching URL:', error);
             return {
-                statusCode: 404,
-                body: JSON.stringify({ error: "URL not found" }),
+                statusCode: 500,
+                body: JSON.stringify({ error: "Internal server error" }),
             };
         }
     }
     return {
-        statusCode: 400,
-        body: JSON.stringify({ error: "Invalid request" }),
+        statusCode: 404,
+        body: JSON.stringify({ error: "Not Found" }),
     };
 };
