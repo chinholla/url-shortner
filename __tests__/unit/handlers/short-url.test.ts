@@ -3,6 +3,7 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { handler } from '../../../src/handlers/short-url.mts';
 const ddbMock = mockClient(DynamoDBClient);
+const mockItem = { id: '1234', longUrl: 'https://example.com' };
 beforeEach(() => {
     ddbMock.reset();
     process.env.TABLE_NAME = 'url-shortner';
@@ -23,25 +24,33 @@ describe('POST /shorten', () => {
         const event = {
             httpMethod: 'POST',
             path: '/shorten',
-            body: JSON.stringify({ longUrl: 'https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Reference/Attributes/aria-hidden' }),
+            body: JSON.stringify({ longUrl: mockItem.longUrl }),
+            headers: { Host: 'api.example.com' }
         };
         const result = await handler(event as any);
         expect(result.statusCode).toBe(201);
-        expect(JSON.parse(result.body).shortUrl).toMatch(/[a-zA-Z0-9.-]/i)
+        expect(JSON.parse(result.body).shortUrl).toContain('api.example.com')
     });
     it('it should return 500 on DynamoDB error', async () => {
         ddbMock.on(PutCommand).rejects(new Error('DynamoDB error'));
         const event = {
             httpMethod: 'POST',
             path: '/shorten',
-            body: JSON.stringify({ longUrl: /^https?:\/\/[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(\/.*)?$/i }),
+            body: JSON.stringify({ longUrl: mockItem.longUrl }),
+            headers: { Host: 'api.example.com' }
         };
         const result = await handler(event as any);
         expect(result.statusCode).toBe(500);
         expect(JSON.parse(result.body).error).toMatch(/Failed to shorten url/);
     });
 })
-// if the promise(APIGatewayProxyResult) is not resolved, return 404. write a test case for this.
-it('it should return 404 for unsettled promise', async () => {
-    
-})
+test('it should return 404 for unsettled promise', async () => {
+    const event = {
+        httpMethod: 'POST',
+        path: '/invalid',
+        body: JSON.stringify({ longUrl: 'invalid' }),
+    }
+    const result = await handler(event as any);
+    expect(result.statusCode).toBe(404);
+    expect(JSON.parse(result.body).error).toMatch(/Not Found/);
+});
