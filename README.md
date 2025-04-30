@@ -9,6 +9,6 @@ This project contains source code and supporting files for a serverless applicat
 
 Tests are defined in the `__tests__` folder in this project. Use `npm` to install the [Jest test framework](https://jestjs.io/) and run unit tests.
 
-Test Coverage report
+# Test Coverage report:
 
-![Screenshot 2025-04-29 170216](https://github.com/user-attachments/assets/4b4ca3a6-1780-428b-8ba8-02249bd6f8bf)
+![image](https://github.com/user-attachments/assets/d10d56e2-ae2a-4d2a-a15d-ad45bf9f1537)
